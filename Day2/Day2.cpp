@@ -11,7 +11,6 @@ vector<int> parse(string report)
     int space;
     vector<int> ans;
     string sub = "";
-    // cout << "report:" << report << endl;
     while (i < report.size())
     {
         space = report.find_first_of(' ', i);
@@ -19,9 +18,7 @@ vector<int> parse(string report)
         {
             space = report.size();
         }
-        // cout << "space = " << space << endl;
         sub = report.substr(i, space-i);
-        // cout << "sub = " << sub << endl;
         ans.push_back(stoi(sub));
         i = space + 1;
     }
@@ -30,45 +27,36 @@ vector<int> parse(string report)
 
 bool check_safe(vector<int> report)
 {
-    bool safe = true;
-    bool removed = false;
-    char inc_dec = 'i';
+    bool increasing = false;
+
     if (report.at(0) < report.at(1))
     {
-        inc_dec = 'i';
-    }
-    else
-    {
-        inc_dec = 'd';
-    }
-    int i = 1;
-    while (safe && i < report.size())
-    {
-        if ((report.at(i) > report.at(i-1) && inc_dec == 'd'))
-        {
-            if (removed)
-                safe = false;
-            else
-                removed = true;
-        }
-        else if ((report.at(i) < report.at(i-1) && inc_dec == 'i'))
-        {
-            if (removed)
-                safe = false;
-            else
-                removed = true;
-        }
-        else if ((abs(report.at(i) - report.at(i-1)) > 3) || (abs(report.at(i) - report.at(i-1)) < 1))
-        {
-            if (removed)
-                safe = false;
-            else
-                removed = true;
-        }
-        i++;
+        increasing = true;
     }
 
-    return safe;
+    if ((abs(report.at(0) - report.at(1)) > 3) || (abs(report.at(0) - report.at(1)) < 1))
+    {
+        return false;
+    }
+
+    int i = 2;
+    while (i < report.size())
+    {
+        if ((report.at(i) > report.at(i-1) && !increasing))
+        {
+            return false;
+        }
+        if ((report.at(i) < report.at(i-1) && increasing))
+        {
+            return false;
+        }
+        if ((abs(report.at(i) - report.at(i-1)) > 3) || (abs(report.at(i) - report.at(i-1)) < 1))
+        {
+            return false;
+        }
+        ++i;
+    }
+    return true;
 }
 
 int main()
@@ -89,21 +77,25 @@ int main()
     for (int i = 0; i < soln.size(); i++)
     {
         if (check_safe(soln.at(i)))
+        {
             safe_sum++;
+        }
+        else
+        {
+            for (int k = 0; k < soln.at(i).size(); ++k)
+            {
+                vector<int> test = soln.at(i);
+                test.erase(test.begin() + k);
+                if (check_safe(test))
+                {
+                    safe_sum++;
+                    break;
+                }
+            }
+        }
     }
 
     cout << "SAFE SUM = " << safe_sum << endl;
-
-    // for (int i = 0; i < soln.size(); i++)
-    // {
-    //     vector<int> curr = soln.at(i);
-    //     cout << "[";
-    //     for (int k = 0; k < curr.size()-1; k++)
-    //     {
-    //         cout << curr.at(k) << ", ";
-    //     }
-    //     cout << curr.back() << "] || safe: " << check_safe(curr) << endl;
-    // }
 
     return 0;
 }
